@@ -1,0 +1,24 @@
+{
+  "name": "tmp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "a": "1",
+    "b": 2,
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "eslint": "^9.12.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "5.2.1",
+    "globals": "^15.11.0",
+    "prettier": "3.3.3",
+    "typescript-eslint": "^8.9.0",
+    "vitest": "^2.1.3"
+  }
+}
