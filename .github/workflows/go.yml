@@ -9,24 +9,28 @@ on:
   pull_request:
     branches: [ "master" ]
 
+# Add this permissions block
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.0
 
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5.0.0
       with:
         go-version: '1.23'
 
     - name: Build
       run: |
         # Build for Windows (exe)
-        GOOS=windows GOARCH=amd64 go build -v -o setup.exe ./...
+        GOOS=windows GOARCH=amd64 go build -v -o setup.exe ./main.go
         # Optional: Build for other platforms
-        # GOOS=linux GOARCH=amd64 go build -v -o setup-linux ./...
-        # GOOS=darwin GOARCH=amd64 go build -v -o setup-mac ./...
+        # GOOS=linux GOARCH=amd64 go build -v -o setup-linux ./main.go
+        # GOOS=darwin GOARCH=amd64 go build -v -o setup-mac ./main.go
 
     - name: Test
       run: go test -v ./...
