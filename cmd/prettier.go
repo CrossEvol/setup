@@ -22,10 +22,15 @@ It installs Prettier, creates configuration files (.prettierrc and .prettierigno
 and adds a format script to your package.json. Prettier helps maintain consistent
 code formatting across your project.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		const pnpmCommand = `pnpm add --save-dev --save-exact prettier`
-		const ignoreFile = `.prettierignore`
-		const prettierFile = `.prettierrc`
-		const prettierConfig = `
+		setupPrettier()
+	},
+}
+
+func setupPrettier() {
+	const pnpmCommand = `pnpm add --save-dev --save-exact prettier`
+	const ignoreFile = `.prettierignore`
+	const prettierFile = `.prettierrc`
+	const prettierConfig = `
 {
     "singleQuote": true,
     "semi": false,
@@ -34,7 +39,7 @@ code formatting across your project.`,
 }
 
 `
-		const prettierIgnoreConfig = `
+	const prettierIgnoreConfig = `
 # Ignore artifacts:
 build
 coverage
@@ -42,39 +47,38 @@ coverage
 node_modules
 
 `
-		fmt.Println("prettier called")
+	fmt.Println("prettier called")
 
-		// Create .prettierignore file
-		err := os.WriteFile(ignoreFile, []byte(prettierIgnoreConfig), 0644)
-		if err != nil {
-			fmt.Printf("Error creating %s: %v\n", ignoreFile, err)
-		} else {
-			fmt.Printf("%s created successfully\n", ignoreFile)
-		}
+	// Create .prettierignore file
+	err := os.WriteFile(ignoreFile, []byte(prettierIgnoreConfig), 0644)
+	if err != nil {
+		fmt.Printf("Error creating %s: %v\n", ignoreFile, err)
+	} else {
+		fmt.Printf("%s created successfully\n", ignoreFile)
+	}
 
-		// Create .prettierrc file
-		err = os.WriteFile(prettierFile, []byte(prettierConfig), 0644)
-		if err != nil {
-			fmt.Printf("Error creating %s: %v\n", prettierFile, err)
-		} else {
-			fmt.Printf("%s created successfully\n", prettierFile)
-		}
+	// Create .prettierrc file
+	err = os.WriteFile(prettierFile, []byte(prettierConfig), 0644)
+	if err != nil {
+		fmt.Printf("Error creating %s: %v\n", prettierFile, err)
+	} else {
+		fmt.Printf("%s created successfully\n", prettierFile)
+	}
 
-		// Run pnpm command
-		cmd2 := exec.Command("pnpm", "add", "--save-dev", "--save-exact", "prettier")
-		cmd2.Stdout = os.Stdout
-		cmd2.Stderr = os.Stderr
-		err = cmd2.Run()
-		if err != nil {
-			fmt.Printf("Error running pnpm command: %v\n", err)
-		} else {
-			fmt.Println("Prettier installed successfully")
-		}
+	// Run pnpm command
+	cmd2 := exec.Command("pnpm", "add", "--save-dev", "--save-exact", "prettier")
+	cmd2.Stdout = os.Stdout
+	cmd2.Stderr = os.Stderr
+	err = cmd2.Run()
+	if err != nil {
+		fmt.Printf("Error running pnpm command: %v\n", err)
+	} else {
+		fmt.Println("Prettier installed successfully")
+	}
 
-		newEntries := `
+	newEntries := `
 		"prettier": "npx prettier . --write",`
-		common.UpdatePackageJSON(newEntries)
-	},
+	common.UpdatePackageJSON(newEntries)
 }
 
 func init() {

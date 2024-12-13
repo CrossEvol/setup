@@ -22,9 +22,14 @@ It installs the necessary dependencies, creates an ESLint configuration file,
 and adds a lint script to your package.json. This helps maintain code quality
 and consistency in your JavaScript and TypeScript projects.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		const pnpmCommand = `pnpm install --save-dev eslint globals @eslint/js typescript-eslint`
-		const eslintFile = `eslint.config.mjs`
-		const eslintConfig = `
+		setupEslint()
+	},
+}
+
+func setupEslint() {
+	const pnpmCommand = `pnpm install --save-dev eslint globals @eslint/js typescript-eslint`
+	const eslintFile = `eslint.config.mjs`
+	const eslintConfig = `
 import pluginJs from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -53,31 +58,30 @@ export default [
   ...tseslint.configs.recommended,
 ];
 `
-		fmt.Println("eslint called")
+	fmt.Println("eslint called")
 
-		// Create eslint.config.mjs file
-		err := os.WriteFile(eslintFile, []byte(eslintConfig), 0644)
-		if err != nil {
-			fmt.Printf("Error creating %s: %v\n", eslintFile, err)
-		} else {
-			fmt.Printf("%s created successfully\n", eslintFile)
-		}
+	// Create eslint.config.mjs file
+	err := os.WriteFile(eslintFile, []byte(eslintConfig), 0644)
+	if err != nil {
+		fmt.Printf("Error creating %s: %v\n", eslintFile, err)
+	} else {
+		fmt.Printf("%s created successfully\n", eslintFile)
+	}
 
-		// Run pnpm command
-		cmd2 := exec.Command("pnpm", "install", "--save-dev", "eslint", "globals", "@eslint/js", "typescript-eslint")
-		cmd2.Stdout = os.Stdout
-		cmd2.Stderr = os.Stderr
-		err = cmd2.Run()
-		if err != nil {
-			fmt.Printf("Error running pnpm command: %v\n", err)
-		} else {
-			fmt.Println("ESLint and dependencies installed successfully")
-		}
+	// Run pnpm command
+	cmd2 := exec.Command("pnpm", "install", "--save-dev", "eslint", "globals", "@eslint/js", "typescript-eslint")
+	cmd2.Stdout = os.Stdout
+	cmd2.Stderr = os.Stderr
+	err = cmd2.Run()
+	if err != nil {
+		fmt.Printf("Error running pnpm command: %v\n", err)
+	} else {
+		fmt.Println("ESLint and dependencies installed successfully")
+	}
 
-		newEntries := `
+	newEntries := `
 		"lint": "eslint . --fix",`
-		common.UpdatePackageJSON(newEntries)
-	},
+	common.UpdatePackageJSON(newEntries)
 }
 
 func init() {

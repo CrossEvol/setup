@@ -34,6 +34,10 @@ func Execute() {
 	}
 }
 
+func skip() int {
+	return 0
+}
+
 func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,

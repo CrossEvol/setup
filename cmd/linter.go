@@ -23,11 +23,16 @@ and adds lint and format scripts to your package.json. This combined setup
 ensures both code quality and consistent formatting in your project.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		const eslintFile = `eslint.config.mjs`
-		const pnpmCommand = `pnpm install --save-dev eslint globals @eslint/js typescript-eslint && pnpm add --save-dev --save-exact prettier eslint-config-prettier eslint-plugin-prettier `
-		const ignoreFile = `.prettierignore`
-		const prettierFile = `.prettierrc`
-		const prettierConfig = `
+		setupLinter()
+	},
+}
+
+func setupLinter() {
+	const eslintFile = `eslint.config.mjs`
+	const pnpmCommand = `pnpm install --save-dev eslint globals @eslint/js typescript-eslint && pnpm add --save-dev --save-exact prettier eslint-config-prettier eslint-plugin-prettier `
+	const ignoreFile = `.prettierignore`
+	const prettierFile = `.prettierrc`
+	const prettierConfig = `
 {
     "singleQuote": true,
     "semi": false,
@@ -36,7 +41,7 @@ ensures both code quality and consistent formatting in your project.`,
 }
 
 `
-		const prettierIgnoreConfig = `
+	const prettierIgnoreConfig = `
 # Ignore artifacts:
 build
 coverage
@@ -44,7 +49,7 @@ coverage
 node_modules
 
 `
-		const eslintConfig = `
+	const eslintConfig = `
 import globals from 'globals'
 import pluginJs from '@eslint/js'
 import tseslint from 'typescript-eslint'
@@ -92,57 +97,56 @@ export default [
     prettierConfig,
 ]
 `
-		fmt.Println("linter called")
+	fmt.Println("linter called")
 
-		// Create eslint.config.mjs file
-		err := os.WriteFile(eslintFile, []byte(eslintConfig), 0644)
-		if err != nil {
-			fmt.Printf("Error creating %s: %v\n", eslintFile, err)
-		} else {
-			fmt.Printf("%s created successfully\n", eslintFile)
-		}
+	// Create eslint.config.mjs file
+	err := os.WriteFile(eslintFile, []byte(eslintConfig), 0644)
+	if err != nil {
+		fmt.Printf("Error creating %s: %v\n", eslintFile, err)
+	} else {
+		fmt.Printf("%s created successfully\n", eslintFile)
+	}
 
-		// Create .prettierignore file
-		err = os.WriteFile(ignoreFile, []byte(prettierIgnoreConfig), 0644)
-		if err != nil {
-			fmt.Printf("Error creating %s: %v\n", ignoreFile, err)
-		} else {
-			fmt.Printf("%s created successfully\n", ignoreFile)
-		}
+	// Create .prettierignore file
+	err = os.WriteFile(ignoreFile, []byte(prettierIgnoreConfig), 0644)
+	if err != nil {
+		fmt.Printf("Error creating %s: %v\n", ignoreFile, err)
+	} else {
+		fmt.Printf("%s created successfully\n", ignoreFile)
+	}
 
-		// Create .prettierrc file
-		err = os.WriteFile(prettierFile, []byte(prettierConfig), 0644)
-		if err != nil {
-			fmt.Printf("Error creating %s: %v\n", prettierFile, err)
-		} else {
-			fmt.Printf("%s created successfully\n", prettierFile)
-		}
+	// Create .prettierrc file
+	err = os.WriteFile(prettierFile, []byte(prettierConfig), 0644)
+	if err != nil {
+		fmt.Printf("Error creating %s: %v\n", prettierFile, err)
+	} else {
+		fmt.Printf("%s created successfully\n", prettierFile)
+	}
 
-		// Run pnpm command
-		cmd2 := exec.Command("pnpm", "install", "--save-dev", "eslint", "globals", "@eslint/js", "typescript-eslint")
-		cmd2.Stdout = os.Stdout
-		cmd2.Stderr = os.Stderr
-		err = cmd2.Run()
-		if err != nil {
-			fmt.Printf("Error running first pnpm command: %v\n", err)
-		} else {
-			fmt.Println("ESLint and dependencies installed successfully")
-		}
+	// Run pnpm command
+	cmd2 := exec.Command("pnpm", "install", "--save-dev", "eslint", "globals", "@eslint/js", "typescript-eslint")
+	cmd2.Stdout = os.Stdout
+	cmd2.Stderr = os.Stderr
+	err = cmd2.Run()
+	if err != nil {
+		fmt.Printf("Error running first pnpm command: %v\n", err)
+	} else {
+		fmt.Println("ESLint and dependencies installed successfully")
+	}
 
-		cmd2 = exec.Command("pnpm", "add", "--save-dev", "--save-exact", "prettier", "eslint-config-prettier", "eslint-plugin-prettier")
-		cmd2.Stdout = os.Stdout
-		cmd2.Stderr = os.Stderr
-		err = cmd2.Run()
-		if err != nil {
-			fmt.Printf("Error running second pnpm command: %v\n", err)
-		} else {
-			fmt.Println("Prettier and related ESLint plugins installed successfully")
-		}
+	cmd2 = exec.Command("pnpm", "add", "--save-dev", "--save-exact", "prettier", "eslint-config-prettier", "eslint-plugin-prettier")
+	cmd2.Stdout = os.Stdout
+	cmd2.Stderr = os.Stderr
+	err = cmd2.Run()
+	if err != nil {
+		fmt.Printf("Error running second pnpm command: %v\n", err)
+	} else {
+		fmt.Println("Prettier and related ESLint plugins installed successfully")
+	}
 
-		newEntries := `
+	newEntries := `
 		"lint": "eslint . --fix",`
-		common.UpdatePackageJSON(newEntries)
-	},
+	common.UpdatePackageJSON(newEntries)
 }
 
 func init() {

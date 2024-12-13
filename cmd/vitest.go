@@ -22,10 +22,15 @@ It installs Vitest, creates configuration files (vitest.config.ts and vitest.set
 and adds a test script to your package.json. Vitest is a fast and lightweight testing
 framework for Vite-based projects.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		const pnpmCommand = `pnpm install --save-dev vitest`
-		const vitestSetupFile = `vitest.setup.ts`
-		const vitestConfigFile = `vitest.config.ts`
-		const vitestConfig = `
+		setupVitest()
+	},
+}
+
+func setupVitest() {
+	const pnpmCommand = `pnpm install --save-dev vitest`
+	const vitestSetupFile = `vitest.setup.ts`
+	const vitestConfigFile = `vitest.config.ts`
+	const vitestConfig = `
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
@@ -41,44 +46,43 @@ export default defineConfig({
     },
 })
 `
-		const vitestSetupConfig = `
+	const vitestSetupConfig = `
 import { afterEach } from 'vitest'
 
 afterEach(() => {})
 
 `
-		fmt.Println("vitest called")
-		// Create vitest.config.ts file
-		err := os.WriteFile(vitestConfigFile, []byte(vitestConfig), 0644)
-		if err != nil {
-			fmt.Printf("Error creating %s: %v\n", vitestConfigFile, err)
-		} else {
-			fmt.Printf("%s created successfully\n", vitestConfigFile)
-		}
+	fmt.Println("vitest called")
+	// Create vitest.config.ts file
+	err := os.WriteFile(vitestConfigFile, []byte(vitestConfig), 0644)
+	if err != nil {
+		fmt.Printf("Error creating %s: %v\n", vitestConfigFile, err)
+	} else {
+		fmt.Printf("%s created successfully\n", vitestConfigFile)
+	}
 
-		// Create vitest.setup.ts file
-		err = os.WriteFile(vitestSetupFile, []byte(vitestSetupConfig), 0644)
-		if err != nil {
-			fmt.Printf("Error creating %s: %v\n", vitestSetupFile, err)
-		} else {
-			fmt.Printf("%s created successfully\n", vitestSetupFile)
-		}
+	// Create vitest.setup.ts file
+	err = os.WriteFile(vitestSetupFile, []byte(vitestSetupConfig), 0644)
+	if err != nil {
+		fmt.Printf("Error creating %s: %v\n", vitestSetupFile, err)
+	} else {
+		fmt.Printf("%s created successfully\n", vitestSetupFile)
+	}
 
-		// Run pnpm command
-		cmd2 := exec.Command("pnpm", "install", "--save-dev", "vitest")
-		cmd2.Stdout = os.Stdout
-		cmd2.Stderr = os.Stderr
-		err = cmd2.Run()
-		if err != nil {
-			fmt.Printf("Error running pnpm command: %v\n", err)
-		} else {
-			fmt.Println("Vitest installed successfully")
-		}
+	// Run pnpm command
+	cmd2 := exec.Command("pnpm", "install", "--save-dev", "vitest")
+	cmd2.Stdout = os.Stdout
+	cmd2.Stderr = os.Stderr
+	err = cmd2.Run()
+	if err != nil {
+		fmt.Printf("Error running pnpm command: %v\n", err)
+	} else {
+		fmt.Println("Vitest installed successfully")
+	}
 
-		newEntries := `
+	newEntries := `
 		"test": "vitest . ",`
-		common.UpdatePackageJSON(newEntries)
-	},
+	common.UpdatePackageJSON(newEntries)
 }
 
 func init() {
