@@ -6,7 +6,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/charmbracelet/huh"
-	_ "github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"

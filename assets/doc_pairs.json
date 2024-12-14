@@ -1,0 +1,7 @@
+{
+  "eslint": "https://eslint.org/",
+  "tslint": "https://typescript-eslint.io/",
+  "prettier": "https://prettier.io/",
+  "vitest": "https://vitest.dev/",
+  "husky": "https://typicode.github.io/husky/"
+}
