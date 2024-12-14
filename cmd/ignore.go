@@ -5,18 +5,23 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/CrossEvol/setup/assets"
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"slices"
+	"sort"
 	"strings"
 )
 
 // gitignoreCmd represents the gitignore command
 var gitignoreCmd = &cobra.Command{
-	Use:   "ignore",
+	Use:   "ignore [lang]? [--all]? [--char]?",
 	Short: "Generate a .gitignore file for a specified language or framework",
 	Long: `This command is used to generate a .gitignore file for a specified language or framework.
 It fetches the .gitignore template from GitHub's collection of .gitignore files and saves it locally.
@@ -33,6 +38,7 @@ For example, you can use this command to quickly set up a .gitignore file for yo
 		all, _ := cmd.Flags().GetBool("all")
 		char, _ := cmd.Flags().GetString("char")
 
+		// list all options
 		if all {
 			fmt.Println("Available keys:")
 			fmt.Println("=====================================================>")
@@ -42,6 +48,7 @@ For example, you can use this command to quickly set up a .gitignore file for yo
 			return
 		}
 
+		// list all options with prefix letter
 		if char != "" {
 			fmt.Printf("Available Keys starting with '%s':\n", char)
 			fmt.Println("=====================================================>")
@@ -53,40 +60,112 @@ For example, you can use this command to quickly set up a .gitignore file for yo
 			return
 		}
 
+		// choose the language with the prefix letter
 		if len(args) == 0 {
-			log.Fatal("Please provide a language or framework name.")
+			fmt.Println("=====================================================>")
+
+			var letters []string
+			for i := 65; i < 91; i++ {
+				ch := string(uint8(i))
+				letters = append(letters, ch)
+				letters = append(letters, strings.ToLower(ch))
+			}
+
+			var ch string
+
+			form := huh.NewForm(
+				huh.NewGroup(
+					huh.NewInput().
+						Value(&ch).
+						Title("Input the first letter: [A-Za-z]").
+						Placeholder("A").
+						Validate(func(s string) error {
+							if !slices.Contains(letters, ch) {
+								return errors.New("unknown Character")
+							}
+							return nil
+						}).
+						Description("Then it will list all options start with it."),
+				),
+			)
+
+			err := form.Run()
+
+			if err != nil {
+				fmt.Println("Uh oh:", err)
+				os.Exit(1)
+			}
+
+			var options []huh.Option[string]
+			for key := range gitignorePairs {
+				if strings.ToLower(key)[:1] == strings.ToLower(ch) {
+					option := huh.NewOption(key, fmt.Sprintf("%s", key))
+					options = append(options, option)
+				}
+			}
+
+			sort.Slice(options, func(i, j int) bool {
+				return strings.Compare(options[i].Key, options[j].Key) < 0
+			})
+
+			var selection string
+			form = huh.NewForm(
+				huh.NewGroup(
+					huh.NewSelect[string]().Title("Choose the Lang:").
+						Options(
+							options...,
+						).
+						Description("Download the .gitignore for the language").
+						Value(&selection),
+				),
+			)
+
+			err = form.Run()
+
+			if err != nil {
+				fmt.Println("Uh oh:", err)
+				os.Exit(1)
+			}
+
+			download(gitignorePairs[selection])
+			return
 		}
 
+		// pass the target language
 		targetKey := strings.ToLower(args[0])
-
 		for key, value := range gitignorePairs {
 			if strings.ToLower(key) == targetKey {
-				url := fmt.Sprintf("https://raw.githubusercontent.com/github/gitignore/main/%s", value)
-				resp, err := http.Get(url)
-				if err != nil {
-					log.Fatalf("Failed to get URL: %v", err)
-				}
-				defer resp.Body.Close()
-
-				if resp.StatusCode == http.StatusOK {
-					body, err := ioutil.ReadAll(resp.Body)
-					if err != nil {
-						log.Fatalf("Failed to read response body: %v", err)
-					}
-
-					// Write the content to a file
-					if err := ioutil.WriteFile(value, body, 0644); err != nil {
-						log.Fatalf("Failed to write file: %v", err)
-					}
-					fmt.Printf("Content saved to file: %s\n", value)
-				} else {
-					log.Fatalf("Failed to fetch content, status code: %d", resp.StatusCode)
-				}
+				download(value)
 				return
 			}
 		}
+
 		log.Printf("No matching key found for: %s", targetKey)
 	},
+}
+
+func download(value string) {
+	url := fmt.Sprintf("https://raw.githubusercontent.com/github/gitignore/main/%s", value)
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatalf("Failed to get URL: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalf("Failed to read response body: %v", err)
+		}
+
+		// Write the content to a file
+		if err := os.WriteFile(value, body, 0644); err != nil {
+			log.Fatalf("Failed to write file: %v", err)
+		}
+		fmt.Printf("Content saved to file: %s\n", value)
+	} else {
+		log.Fatalf("Failed to fetch content, status code: %d", resp.StatusCode)
+	}
 }
 
 func init() {
