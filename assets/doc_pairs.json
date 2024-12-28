@@ -3,5 +3,8 @@
   "tslint": "https://typescript-eslint.io/",
   "prettier": "https://prettier.io/",
   "vitest": "https://vitest.dev/",
-  "husky": "https://typicode.github.io/husky/"
+  "husky": "https://typicode.github.io/husky/",
+  "mypy": "https://mypy.readthedocs.io/en/stable/",
+  "python-type-hint": "https://typing.readthedocs.io/en/latest/",
+  "black": "https://black.readthedocs.io/en/stable/"
 }
