@@ -15,6 +15,9 @@ const ESLINT = "eslint"
 const PRETTIER = "prettier"
 const VITEST = "vitest"
 const HUSKY = "husky"
+const COMMITLINT = "commitlint"
+const LINTSTAGED = "lintStaged"
+const RELEASEIT = "releaseIt"
 
 // esCmd represents the lint command
 var esCmd = &cobra.Command{
@@ -34,6 +37,9 @@ It will not only install the needed packages, but also initialize the configurat
 						huh.NewOption(PRETTIER, PRETTIER),
 						huh.NewOption(VITEST, VITEST),
 						huh.NewOption(HUSKY, HUSKY),
+						huh.NewOption(COMMITLINT, COMMITLINT),
+						huh.NewOption(LINTSTAGED, LINTSTAGED),
+						huh.NewOption(RELEASEIT, RELEASEIT),
 					).
 					Description("Choose your Tools").
 					Value(&tools),
@@ -49,40 +55,46 @@ It will not only install the needed packages, but also initialize the configurat
 
 		fmt.Printf("Choose tools: %s\n", tools)
 
+		// Handle ESLint and Prettier combined setup
 		configureEslintWithPrettier := false
-		if len(tools) == 2 && slices.Contains(tools, ESLINT) && slices.Contains(tools, PRETTIER) {
-			configureEslintWithPrettier = true
+		if slices.Contains(tools, ESLINT) && slices.Contains(tools, PRETTIER) {
+			// Check if ONLY ESLINT and PRETTIER are selected for the combined setup
+			// If other tools are selected, we might want to run them individually
+			// The original logic checked if len(tools) == 2. Let's stick to that for now.
+			if len(tools) == 2 {
+				configureEslintWithPrettier = true
+			} else {
+				// If other tools are selected along with ESLint and Prettier,
+				// we should probably run them individually.
+				configureEslintWithPrettier = false
+			}
 		}
+
 		if configureEslintWithPrettier {
 			fmt.Println()
 			fmt.Println("=============== Setup Eslint with Prettier BEGIN  =====================")
-			setupLinter()
+			setupLinter() // Assuming setupLinter handles both
 			fmt.Println("=============== Setup Eslint with Prettier END  =====================")
 			fmt.Println()
 		}
-		if slices.Contains(tools, ESLINT) {
-			if configureEslintWithPrettier {
-				skip()
-			} else {
-				fmt.Println()
-				fmt.Println("=============== Setup Eslint BEGIN  =====================")
-				setupLinter()
-				fmt.Println("=============== Setup Eslint END  =====================")
-				fmt.Println()
-			}
 
+		// Handle individual tool setups, skipping if combined was handled
+		if slices.Contains(tools, ESLINT) && !configureEslintWithPrettier {
+			fmt.Println()
+			fmt.Println("=============== Setup Eslint BEGIN  =====================")
+			setupEslint() // Call the specific ESLint setup
+			fmt.Println("=============== Setup Eslint END  =====================")
+			fmt.Println()
 		}
-		if slices.Contains(tools, PRETTIER) {
-			if configureEslintWithPrettier {
-				skip()
-			} else {
-				fmt.Println()
-				fmt.Println("=============== Setup Prettier BEGIN  =====================")
-				setupPrettier()
-				fmt.Println("=============== Setup Prettier END  =====================")
-				fmt.Println()
-			}
+
+		if slices.Contains(tools, PRETTIER) && !configureEslintWithPrettier {
+			fmt.Println()
+			fmt.Println("=============== Setup Prettier BEGIN  =====================")
+			setupPrettier() // Call the specific Prettier setup
+			fmt.Println("=============== Setup Prettier END  =====================")
+			fmt.Println()
 		}
+
 		if slices.Contains(tools, VITEST) {
 			fmt.Println()
 			fmt.Println("=============== Setup Vitest BEGIN  =====================")
@@ -91,12 +103,40 @@ It will not only install the needed packages, but also initialize the configurat
 			fmt.Println("=============== Setup Vitest END  =====================")
 			fmt.Println()
 		}
+
 		if slices.Contains(tools, HUSKY) {
 			fmt.Println()
 			fmt.Println("=============== Setup Husky BEGIN  =====================")
 			setupHusky()
 			fmt.Println()
 			fmt.Println("=============== Setup Husky END  =====================")
+			fmt.Println()
+		}
+
+		if slices.Contains(tools, COMMITLINT) {
+			fmt.Println()
+			fmt.Println("=============== Setup Commitlint BEGIN  =====================")
+			setupCommitlint()
+			fmt.Println()
+			fmt.Println("=============== Setup Commitlint END  =====================")
+			fmt.Println()
+		}
+
+		if slices.Contains(tools, LINTSTAGED) {
+			fmt.Println()
+			fmt.Println("=============== Setup Lint-Staged BEGIN  =====================")
+			setupLintStaged()
+			fmt.Println()
+			fmt.Println("=============== Setup Lint-Staged END  =====================")
+			fmt.Println()
+		}
+
+		if slices.Contains(tools, RELEASEIT) {
+			fmt.Println()
+			fmt.Println("=============== Setup Release-It BEGIN  =====================")
+			setupReleaseIt()
+			fmt.Println()
+			fmt.Println("=============== Setup Release-It END  =====================")
 			fmt.Println()
 		}
 	},
@@ -115,3 +155,9 @@ func init() {
 	// is called directly, e.g.:
 	// esCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
+
+// Note: The actual setup functions (setupEslint, setupPrettier, setupVitest,
+// setupHusky, setupLinter, setupCommitlint, setupLintStaged, setupReleaseIt)
+// are assumed to be defined in other files within the 'cmd' package
+// (e.g., cmd/eslint.go, cmd/prettier.go, etc.) and are accessible here.
+// The skip() function is also assumed to be defined elsewhere, likely in root.go.
