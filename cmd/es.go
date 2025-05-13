@@ -8,7 +8,6 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"os"
-	"os/exec"
 	"slices"
 )
 
@@ -101,33 +100,6 @@ It will not only install the needed packages, but also initialize the configurat
 			fmt.Println()
 		}
 	},
-}
-
-func setupHusky() {
-	const pnpmInstallCommand = `pnpm add --save-dev husky`
-	const pnpmInitCommand = `pnpm exec husky init`
-
-	// Run pnpm install command
-	cmd := exec.Command("pnpm", "add", "--save-dev", "husky")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Printf("Error running pnpm command [%s] : %v\n", pnpmInstallCommand, err)
-	} else {
-		fmt.Println("Husky installed successfully")
-	}
-
-	// Run pnpm install command
-	cmd = exec.Command("pnpm", "exec", "husky", "init")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if err != nil {
-		fmt.Printf("Error running pnpm command [%s] : %v\n", pnpmInitCommand, err)
-	} else {
-		fmt.Println("Husky initialized successfully")
-	}
 }
 
 func init() {
