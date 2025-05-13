@@ -19,16 +19,16 @@ const COMMITLINT = "commitlint"
 const LINTSTAGED = "lintStaged"
 const RELEASEIT = "releaseIt"
 
-// esCmd represents the lint command
-var esCmd = &cobra.Command{
-	Use:   "es",
-	Short: "Set up Javascript project tool-chains",
-	Long: `Set up Javascript project tool-chains, include eslint, prettier, vitest, husky and so on.
+// nodeCmd represents the node command
+var nodeCmd = &cobra.Command{
+	Use:   "node",
+	Short: "Set up Node.js project tool-chains",
+	Long: `Set up Node.js project tool-chains, include eslint, prettier, vitest, husky and so on.
 It will not only install the needed packages, but also initialize the configuration files and add corresponding scripts.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var tools []string
 
-		fmt.Println("ECMA script project initializing....")
+		fmt.Println("Node.js project initializing....")
 		form := huh.NewForm(
 			huh.NewGroup(
 				huh.NewMultiSelect[string]().Title("Tool Chains").
@@ -143,17 +143,17 @@ It will not only install the needed packages, but also initialize the configurat
 }
 
 func init() {
-	rootCmd.AddCommand(esCmd)
+	rootCmd.AddCommand(nodeCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// esCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// nodeCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// esCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// nodeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // Note: The actual setup functions (setupEslint, setupPrettier, setupVitest,
