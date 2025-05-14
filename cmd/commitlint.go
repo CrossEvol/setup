@@ -162,8 +162,10 @@ func setupCommitlint() {
 		}
 	}
 
-	// 4. Integrate with Husky if .husky/commit-msg exists
-	huskyCommitMsgPath := filepath.Join(".husky", "commit-msg")
+	// 4. Integrate with Husky
+	huskyDir := ".husky"
+	huskyCommitMsgPath := filepath.Join(huskyDir, "commit-msg")
+
 	_, err = os.Stat(huskyCommitMsgPath)
 	if err == nil { // File exists
 		fmt.Printf("Husky commit-msg hook found at %s. Appending commitlint command...\n", huskyCommitMsgPath)
@@ -192,12 +194,32 @@ func setupCommitlint() {
 				fmt.Printf("Command '%s commitlint' appended to %s.\n", runCmdPrefix, huskyCommitMsgPath)
 			}
 		}
-	} else if !os.IsNotExist(err) {
-		// Some other error occurred checking the file
+	} else if os.IsNotExist(err) { // File does not exist, create it
+		fmt.Printf("Husky commit-msg hook not found at %s. Creating file...\n", huskyCommitMsgPath)
+
+		// Ensure .husky directory exists
+		mkdirErr := os.MkdirAll(huskyDir, 0755) // Use 0755 for directory permissions
+		if mkdirErr != nil {
+			fmt.Printf("Error creating directory %s: %v\n", huskyDir, mkdirErr)
+			fmt.Println("Skipping Husky integration.")
+			return // Cannot proceed without the directory
+		}
+
+		// Content for the new commit-msg file
+		// Standard shebang + the command
+		newFileContent := fmt.Sprintf("#!/usr/bin/env sh\n%s commitlint\n", runCmdPrefix)
+
+		// Write the new file with executable permissions
+		writeErr := os.WriteFile(huskyCommitMsgPath, []byte(newFileContent), 0755)
+		if writeErr != nil {
+			fmt.Printf("Error creating %s: %v\n", huskyCommitMsgPath, writeErr)
+		} else {
+			fmt.Printf("%s created successfully with command '%s commitlint'.\n", huskyCommitMsgPath, runCmdPrefix)
+		}
+
+	} else { // Some other error occurred checking the file
 		fmt.Printf("Error checking for %s: %v\n", huskyCommitMsgPath, err)
-	} else {
-		// File does not exist, Husky is likely not set up via this tool or manually
-		fmt.Println("Husky commit-msg hook not found. Skipping integration.")
+		fmt.Println("Skipping Husky integration.")
 	}
 
 	fmt.Println("commitlint setup complete.")
