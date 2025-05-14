@@ -3,8 +3,11 @@
   "tslint": "https://typescript-eslint.io/",
   "prettier": "https://prettier.io/",
   "vitest": "https://vitest.dev/",
-  "husky": "https://typicode.github.io/husky/",
   "mypy": "https://mypy.readthedocs.io/en/stable/",
   "python-type-hint": "https://typing.readthedocs.io/en/latest/",
+  "lint-staged": "https://github.com/lint-staged/lint-staged/",
+  "husky": "https://typing.readthedocs.io/en/latest/",
+  "commitlint": "https://commitlint.js.org/guides/getting-started.html/",
+  "release-it": "https://github.com/release-it/release-it",
   "black": "https://black.readthedocs.io/en/stable/"
 }
